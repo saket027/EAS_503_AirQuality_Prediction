@@ -44,18 +44,17 @@ name: deploy
 on:
   push:
     branches:
-      - master  # Change to 'main' if your default branch is named 'main'
+      - master  # Change to 'main' if your default branch is 'main'
 
 jobs:
   build-and-deploy-book:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        os: [ubuntu-latest]
         python-version: [3.9]
 
     steps:
-    # Step 1: Checkout the repository
+    # Step 1: Checkout repository
     - name: Checkout repository
       uses: actions/checkout@v2
 
@@ -71,13 +70,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # Step 4: Build the book
+    # Step 4: Configure Git
+    - name: Configure Git
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+
+    # Step 5: Build the book
     - name: Build the book
       run: |
-        pip install jupyter-book  # Ensure jupyter-book is installed
+        pip install jupyter-book
         jupyter-book build .
 
-    # Step 5: Deploy the book's HTML to the gh-pages branch
+    # Step 6: Deploy to GitHub Pages
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3.9.1
       with:
